@@ -77,7 +77,7 @@ def add_vtarg_and_adv(seg, gamma, lam):
         gaelam[t] = lastgaelam = delta + gamma * lam * nonterminal * lastgaelam
     seg["tdlamret"] = seg["adv"] + seg["vpred"]
 
-def learn(env, policy_func, *,
+def learn(env, policy_func, #*,
         timesteps_per_batch, # timesteps per actor per update
         clip_param, entcoeff, # clipping parameter epsilon, entropy coeff
         optim_epochs, optim_stepsize, optim_batchsize,# optimization hypers
@@ -85,6 +85,7 @@ def learn(env, policy_func, *,
         save_model_with_prefix, # Save the model with this prefix after 500 iters
         restore_model_from_file,# Load the states/model from this file.
         max_timesteps=0, max_episodes=0, max_iters=0, max_seconds=0,  # time constraint
+        start_timestep=0, # timestep to start from if loading a previous model
         callback=None, # you can do anything in the callback, since it takes locals(), globals()
         adam_epsilon=1e-5,
         schedule='constant', # annealing for stepsize parameters (epsilon and adam)
@@ -141,7 +142,7 @@ def learn(env, policy_func, *,
     seg_gen = traj_segment_generator(pi, env, timesteps_per_batch, stochastic=True)
 
     episodes_so_far = 0
-    timesteps_so_far = 0
+    timesteps_so_far = start_timestep
     iters_so_far = 0
     tstart = time.time()
     lenbuffer = deque(maxlen=100) # rolling buffer for episode lengths
@@ -150,7 +151,6 @@ def learn(env, policy_func, *,
     assert sum([max_iters>0, max_timesteps>0, max_episodes>0, max_seconds>0])==1, "Only one time constraint permitted"
 
     while True:
-        if callback: callback(locals(), globals())
         if max_timesteps and timesteps_so_far >= max_timesteps:
             break
         elif max_episodes and episodes_so_far >= max_episodes:
@@ -220,6 +220,9 @@ def learn(env, policy_func, *,
         if MPI.COMM_WORLD.Get_rank()==0:
             logger.dump_tabular()
 
+        # Saving the model every X iters can be done in the callback
+        if callback: callback(locals(), globals())
+        """
         # Save model after every 500 iters if a file name to save is given
         import os 
         if iters_so_far % 500 ==0:
@@ -228,6 +231,7 @@ def learn(env, policy_func, *,
                 modelF= basePath + '/' + save_model_with_prefix+"_afterIter_"+str(iters_so_far)+".model"
                 U.save_state(modelF)
                 logger.log("Saved model to file :{}".format(modelF))
+        """
 
 def flatten_lists(listoflists):
     return [el for list_ in listoflists for el in list_]
