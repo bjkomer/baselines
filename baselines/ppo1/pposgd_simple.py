@@ -82,8 +82,8 @@ def learn(env, policy_func, #*,
         clip_param, entcoeff, # clipping parameter epsilon, entropy coeff
         optim_epochs, optim_stepsize, optim_batchsize,# optimization hypers
         gamma, lam, # advantage estimation
-        save_model_with_prefix, # Save the model with this prefix after 500 iters
-        restore_model_from_file,# Load the states/model from this file.
+        #save_model_with_prefix, # Save the model with this prefix after 500 iters
+        restore_model_from_file='',# Load the states/model from this file.
         max_timesteps=0, max_episodes=0, max_iters=0, max_seconds=0,  # time constraint
         start_timestep=0, # timestep to start from if loading a previous model
         callback=None, # you can do anything in the callback, since it takes locals(), globals()
