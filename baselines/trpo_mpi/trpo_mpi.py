@@ -186,7 +186,6 @@ def learn(env, policy_func, *,
     assert sum([max_iters>0, max_timesteps>0, max_episodes>0])==1
 
     while True:        
-        if callback: callback(locals(), globals())
         if max_timesteps and timesteps_so_far >= max_timesteps:
             break
         elif max_episodes and episodes_so_far >= max_episodes:
@@ -283,6 +282,7 @@ def learn(env, policy_func, *,
         logger.record_tabular("EpisodesSoFar", episodes_so_far)
         logger.record_tabular("TimestepsSoFar", timesteps_so_far)
         logger.record_tabular("TimeElapsed", time.time() - tstart)
+        if callback: callback(locals(), globals())
 
         if rank==0:
             logger.dump_tabular()
