@@ -138,3 +138,6 @@ def learn(env, policy, vf, gamma, lam, timesteps_per_batch, num_timesteps,
             callback(locals(), globals())
         logger.dump_tabular()
         i += 1
+
+    coord.request_stop()
+    coord.join(enqueue_threads)
